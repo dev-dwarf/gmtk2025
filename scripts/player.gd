@@ -7,7 +7,7 @@ signal coin_collected
 
 const SPEED = 5
 const JUMP_ACCEL = 8
-const ACCEL = 15
+const ACCEL = 22
 const FLOOR_FRIC = 25
 const AIR_FRIC = 5
 const GRAVITY_ACCEL = 25
@@ -72,8 +72,9 @@ func _physics_process(delta):
 		on_floor = min(-1, on_floor-1)
 		gravity += GRAVITY_ACCEL * delta
 		
+	# Input.is_action_just_pressed("flip")
 	# Die
-	if position.y < -10:
+	if Input.is_action_just_pressed("restart") or position.y < -10:
 		get_tree().reload_current_scene()
 	
 	# Move
