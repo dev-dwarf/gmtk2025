@@ -15,6 +15,12 @@
 [ext_resource type="FontFile" uid="uid://d0cxd77jybrcn" path="res://fonts/lilita_one_regular.ttf" id="17_tk810"]
 
 [sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_trceg"]
+dof_blur_far_enabled = true
+dof_blur_far_distance = 11.08
+dof_blur_far_transition = -1.0
+dof_blur_near_distance = 3.55
+dof_blur_near_transition = -1.0
+dof_blur_amount = 0.04
 
 [sub_resource type="LabelSettings" id="LabelSettings_38ys3"]
 font = ExtResource("17_tk810")
@@ -23,14 +29,6 @@ shadow_color = Color(0, 0, 0, 0.376471)
 shadow_offset = Vector2(2, 2)
 
 [node name="Main" type="Node3D"]
-
-[node name="Environment" type="WorldEnvironment" parent="."]
-environment = ExtResource("1_ahusb")
-
-[node name="Sun" type="DirectionalLight3D" parent="Environment"]
-transform = Transform3D(-0.422618, -0.694272, 0.582564, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 0, 0)
-shadow_enabled = true
-shadow_opacity = 0.75
 
 [node name="Player" parent="." node_paths=PackedStringArray("view") instance=ExtResource("2_onms2")]
 view = NodePath("../View")
@@ -44,7 +42,15 @@ target = NodePath("../Player")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
 attributes = SubResource("CameraAttributesPractical_trceg")
 current = true
-fov = 40.0
+fov = 49.6
+near = 0.005
+
+[node name="Environment" type="WorldEnvironment" parent="View/Camera"]
+environment = ExtResource("1_ahusb")
+
+[node name="Sun" type="DirectionalLight3D" parent="View/Camera/Environment"]
+transform = Transform3D(-0.422618, -0.694272, 0.582564, 0, 0.642788, 0.766044, -0.906308, 0.323744, -0.271654, 0, 0, 0)
+shadow_opacity = 0.75
 
 [node name="World" type="Node3D" parent="."]
 
@@ -82,7 +88,7 @@ transform = Transform3D(0.994522, 0, -0.104528, 0, 1, 0, 0.104528, 0, 0.994522, 
 transform = Transform3D(0.939693, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.939693, -11.7527, 1.8303, -2.30579)
 
 [node name="platform-grass-large-round" parent="World" instance=ExtResource("8_4oh1e")]
-transform = Transform3D(0.98171, 0.190381, 0, -0.190381, 0.98171, 0, 0, 0, 1, -7, 1.71764, -2)
+transform = Transform3D(0.87288, 0.487936, 0, -0.487936, 0.87288, 0, 0, 0, 1, -7, 1.71764, -2)
 
 [node name="flag" parent="World" instance=ExtResource("9_fw1f5")]
 transform = Transform3D(0.707107, 0, -0.707107, 0, 1, 0, 0.707107, 0, 0.707107, 0, 3.48077, -6)
