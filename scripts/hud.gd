@@ -1,5 +1,4 @@
 extends CanvasLayer
 
-func _on_coin_collected(coins):
-	
-	$Coins.text = str(coins)
+func _physics_process(delta: float):
+	$Coins.text = ("f" if Global.forward else "r") + ":" + str(int(Global.time*100))

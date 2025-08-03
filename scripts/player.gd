@@ -20,7 +20,7 @@ var gravity = 0
 var coins = 0
 
 var on_floor = 1
-var jump_double = true
+var jump_double = false
 var jump_buffer = 0
 
 @onready var particles_trail = $ParticlesTrail
@@ -30,6 +30,10 @@ var jump_buffer = 0
 
 func approach(x, t, s):
 	return min(x+s, t) if x < t else max(x-s, t) 
+	
+func _ready():
+	Global.forward = true;
+	Global.time = 0;
 
 func _physics_process(delta):
 	var input := Vector3.ZERO
@@ -39,22 +43,20 @@ func _physics_process(delta):
 
 	input = input.rotated(Vector3.UP, view.rotation.y).normalized() * SPEED
 	
-	# Check input facing opposite way of current movement
-	if input == Vector3.ZERO or movement_velocity.dot(input) < 0:
-		var fric = FLOOR_FRIC if on_floor > 0 else AIR_FRIC
-		movement_velocity = movement_velocity.move_toward(Vector3.ZERO, fric * delta)
-	movement_velocity = movement_velocity.move_toward(input, ACCEL * delta)
-
 	jump_buffer -= 1
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer = JUMP_BUFFER
 		
 	if jump_buffer > 0:
 		var can_jump = on_floor > -COYOTE_TIME
-		if jump_double:
+		
+		if not can_jump and jump_double:
 			can_jump = true;
 			jump_double = false;
+			Global.forward = not Global.forward
+			
 		if can_jump:
+			jump_buffer = -1
 			gravity = -JUMP_ACCEL
 			on_floor = -COYOTE_TIME
 			model.scale = Vector3(0.5, 1.5, 0.5)
@@ -71,16 +73,29 @@ func _physics_process(delta):
 	else:
 		on_floor = min(-1, on_floor-1)
 		gravity += GRAVITY_ACCEL * delta
+	
+	# Check input facing opposite way of current movement
+	if input == Vector3.ZERO or movement_velocity.dot(input) < 0:
+		var fric = FLOOR_FRIC if on_floor > 0 else AIR_FRIC
+		movement_velocity = movement_velocity.move_toward(Vector3.ZERO, fric * delta)
+	movement_velocity = movement_velocity.move_toward(input, ACCEL * delta)
+	
+	# Advance time
+	var time_scale = 0.1 * clamp(movement_velocity.length_squared()/(SPEED*SPEED), 0, 1)
+	var time_target = 1.0 if Global.forward else 0.0
+	Global.time = move_toward(Global.time, time_target, time_scale * delta)
 		
-	# Input.is_action_just_pressed("flip")
 	# Die
 	if Input.is_action_just_pressed("restart") or position.y < -10:
 		get_tree().reload_current_scene()
 	
-	# Move
-	var applied_velocity: Vector3
-	applied_velocity = movement_velocity
-	applied_velocity.y = -gravity
+	# Move if time can move
+	var applied_velocity = Vector3.ZERO
+	if (Global.time != time_target or not jump_double):
+		applied_velocity = movement_velocity
+		applied_velocity.y = -gravity
+	elif gravity < 0:
+		applied_velocity.y = -gravity
 	velocity = applied_velocity
 	move_and_slide()
 	
