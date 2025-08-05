@@ -19,7 +19,6 @@ var mouse_sensitivity = 0.0505
 
 func _ready():
 	camera_rotation = rotation_degrees # Initial rotation
-	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	pass
 
 func _physics_process(delta):
@@ -32,6 +31,7 @@ func _physics_process(delta):
 	
 	input.y = Input.get_axis("camera_right", "camera_left")
 	input.x = Input.get_axis("camera_up", "camera_down")
+	Input.set_mouse_mode(Input.MOUSE_MODE_CAPTURED)
 	
 	camera_rotation += input.limit_length(1.0) * rotation_speed * delta
 	camera_rotation.x = clamp(camera_rotation.x, -80, -10)
