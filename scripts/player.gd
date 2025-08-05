@@ -43,9 +43,14 @@ func _physics_process(delta):
 
 	input = input.rotated(Vector3.UP, view.rotation.y).normalized() * SPEED
 	
+	var has_input = false
+	has_input = has_input or (input != Vector3.ZERO)
+	has_input = has_input or (Input.is_action_pressed("jump"))
+	
 	jump_buffer -= 1
 	if Input.is_action_just_pressed("jump"):
 		jump_buffer = JUMP_BUFFER
+		has_input = true
 		
 	if jump_buffer > 0:
 		var can_jump = on_floor > -COYOTE_TIME
@@ -70,34 +75,37 @@ func _physics_process(delta):
 				Audio.play("res://sounds/land.ogg")
 			gravity = 0
 			jump_double = true
-	else:
+	elif has_input:
 		on_floor = min(-1, on_floor-1)
 		gravity += GRAVITY_ACCEL * delta
 	
 	# Check input facing opposite way of current movement
-	if input == Vector3.ZERO or movement_velocity.dot(input) < 0:
-		var fric = FLOOR_FRIC if on_floor > 0 else AIR_FRIC
-		movement_velocity = movement_velocity.move_toward(Vector3.ZERO, fric * delta)
-	movement_velocity = movement_velocity.move_toward(input, ACCEL * delta)
-	
-	# Advance time
-	var time_scale = 0.1 * clamp(movement_velocity.length_squared()/(SPEED*SPEED), 0, 1)
-	var time_target = 1.0 if Global.forward else 0.0
-	Global.time = move_toward(Global.time, time_target, time_scale * delta)
-		
+	if has_input:
+		if input == Vector3.ZERO or movement_velocity.dot(input) < 0:
+			var fric = FLOOR_FRIC if on_floor > 0 else AIR_FRIC
+			movement_velocity = movement_velocity.move_toward(Vector3.ZERO, fric * delta)
+		movement_velocity = movement_velocity.move_toward(input, ACCEL * delta)
+
 	# Die
 	if Input.is_action_just_pressed("restart") or position.y < -10:
 		get_tree().reload_current_scene()
-	
-	# Move if time can move
+		
+	# Advance time
 	var applied_velocity = Vector3.ZERO
-	if (Global.time != time_target or not jump_double):
-		applied_velocity = movement_velocity
-		applied_velocity.y = -gravity
-	elif gravity < 0:
-		applied_velocity.y = -gravity
-	velocity = applied_velocity
-	move_and_slide()
+	if has_input:
+		#var time_scale = 0.1 * clamp(has_input + movement_velocity.length_squared()/(SPEED*SPEED), 0, 2)
+		var time_scale = 0.1 * float(has_input)
+		var time_target = 1.0 if Global.forward else 0.0
+		Global.time = move_toward(Global.time, time_target, time_scale * delta)
+		
+		# Move if time can move
+		if (Global.time != time_target or not jump_double):
+			applied_velocity = movement_velocity
+			applied_velocity.y = -gravity
+		elif gravity < 0:
+			applied_velocity.y = -gravity
+		velocity = applied_velocity
+		move_and_slide()
 	
 	# Animation
 	particles_trail.emitting = false
@@ -120,6 +128,7 @@ func _physics_process(delta):
 	elif animation.current_animation != "jump":
 		animation.play("jump", 0.1)
 	model.scale = model.scale.lerp(Vector3(1, 1, 1), delta * 10)
+	animation.speed_scale = applied_velocity != Vector3.ZERO
 	
 	# Tilt in movement dir
 	if Vector2(velocity.z, velocity.x).length() > 0:

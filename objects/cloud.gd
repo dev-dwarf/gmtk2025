@@ -1,19 +1,15 @@
 extends Node3D
 
-var time = 0.0
-
 var random_number = RandomNumberGenerator.new()
-
 var random_velocity:float
 var random_time:float
 
+var init_y
+var phase
+
 func _ready():
-	
-	random_velocity = random_number.randf_range(0.1, 2.0)
-	random_time = random_number.randf_range(0.1, 2.0)
+	init_y = position.y
+	phase = 101*position.x + 404*position.z + 505*position.y
 
 func _process(delta):
-	
-	position.y += (cos(time * random_time) * random_velocity) * delta # Sine movement
-	
-	time += delta
+	position.y = init_y + cos(phase + (Global.time * TAU * 4)/scale.y)/scale.x

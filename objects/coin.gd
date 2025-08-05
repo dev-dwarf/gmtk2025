@@ -1,10 +1,13 @@
 extends Area3D
 
-var time := 0.0
 var grabbed := false
 
-# Collecting coins
+var init_y;
 
+func _ready():
+	init_y = position.y
+
+# Collecting coins
 func _on_body_entered(body):
 	if body.has_method("collect_coin") and !grabbed:
 		
@@ -18,10 +21,6 @@ func _on_body_entered(body):
 		grabbed = true
 
 # Rotating, animating up and down
-
 func _process(delta):
-	
-	rotate_y(2 * delta) # Rotation
-	position.y += (cos(time * 5) * 1) * delta # Sine movement
-	
-	time += delta
+	rotation.y = fmod(45 * Global.time, 360.)
+	position.y = init_y + 0.25 * cos(8 * TAU * Global.time)
