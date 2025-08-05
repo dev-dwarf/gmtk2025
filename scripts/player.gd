@@ -129,6 +129,8 @@ func _physics_process(delta):
 		animation.play("jump", 0.1)
 	model.scale = model.scale.lerp(Vector3(1, 1, 1), delta * 10)
 	animation.speed_scale = applied_velocity != Vector3.ZERO
+	if applied_velocity == Vector3.ZERO:
+		sound_footsteps.stream_paused = true
 	
 	# Tilt in movement dir
 	if Vector2(velocity.z, velocity.x).length() > 0:
