@@ -35,6 +35,12 @@ func _ready():
 	Global.forward = true;
 	Global.time = 0;
 
+func die():
+	call_deferred("_reload")
+	
+func _reload():
+	get_tree().reload_current_scene()
+
 func _physics_process(delta):
 	var input := Vector3.ZERO
 
@@ -88,7 +94,7 @@ func _physics_process(delta):
 
 	# Die
 	if Input.is_action_just_pressed("restart") or position.y < -10:
-		get_tree().reload_current_scene()
+		die()
 		
 	# Advance time
 	var applied_velocity = Vector3.ZERO

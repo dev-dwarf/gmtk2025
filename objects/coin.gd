@@ -21,6 +21,6 @@ func _on_body_entered(body):
 		grabbed = true
 
 # Rotating, animating up and down
-func _process(delta):
+func _process(_delta):
 	rotation.y = fmod(45 * Global.time, 360.)
 	position.y = init_y + 0.25 * cos(8 * TAU * Global.time)
