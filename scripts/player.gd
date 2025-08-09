@@ -115,28 +115,29 @@ func _physics_process(delta):
 	
 	# Animation
 	particles_trail.emitting = false
+	particles_trail.speed_scale = 0
 	sound_footsteps.stream_paused = true
-	if is_on_floor():
-		var horizontal_velocity = Vector2(velocity.x, velocity.z)
-		var speed_factor = horizontal_velocity.length() / SPEED
-		if speed_factor > 0.05:
-			if animation.current_animation != "walk":
-				animation.play("walk", 0.1)
+	if applied_velocity != Vector3.ZERO:
+		particles_trail.speed_scale = 1
+		if is_on_floor():
+			var horizontal_velocity = Vector2(velocity.x, velocity.z)
+			var speed_factor = horizontal_velocity.length() / SPEED
+			if speed_factor > 0.05:
+				if animation.current_animation != "walk":
+					animation.play("walk", 0.1)
 
-			if speed_factor > 0.3:
-				sound_footsteps.stream_paused = false
-				sound_footsteps.pitch_scale = speed_factor
+				if speed_factor > 0.3:
+					sound_footsteps.stream_paused = false
+					sound_footsteps.pitch_scale = speed_factor
 
-			if speed_factor > 0.75:
-				particles_trail.emitting = true
-		elif animation.current_animation != "idle":
-			animation.play("idle", 0.1)
-	elif animation.current_animation != "jump":
-		animation.play("jump", 0.1)
+				if speed_factor > 0.75:
+					particles_trail.emitting = true
+			elif animation.current_animation != "idle":
+				animation.play("idle", 0.1)
+		elif animation.current_animation != "jump":
+			animation.play("jump", 0.1)
 	model.scale = model.scale.lerp(Vector3(1, 1, 1), delta * 10)
 	animation.speed_scale = applied_velocity != Vector3.ZERO
-	if applied_velocity == Vector3.ZERO:
-		sound_footsteps.stream_paused = true
 	
 	# Tilt in movement dir
 	if Vector2(velocity.z, velocity.x).length() > 0:

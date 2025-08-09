@@ -10,8 +10,7 @@ func _ready():
 func _process(_delta):
 	animation.seek(Global.time * animation.current_animation_length * cycles, false)
 	var pos = fmod(animation.current_animation_position,animation.current_animation_length)
-	spikes_up = (pos > 1.95) and (pos < 3.23)
-	print(pos, spikes_up)
+	spikes_up = (pos > 1.95) and (pos < 3.30)
 	$Area3D.monitoring = spikes_up
 	
 
